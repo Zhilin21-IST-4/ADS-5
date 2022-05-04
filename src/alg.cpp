@@ -3,92 +3,117 @@
 #include <map>
 #include "tstack.h"
 
-int pr(char myoperator1) {
-  switch (myoperator1) {
-    case '(': return 0;
-    case ')': return 1;
-    case '+': return 2;
-    case '-': return 2;
-    case '/': return 3;
-    case '*': return 3;
-    case ' ': return 5;
-    default: return 4;
+int pr(char var1) {
+  if (var1 == '(') {
+    return 0;
+  }
+  else if (var1 == ')') {
+    return 1;
+  } 
+  else if (var1 == '-') {
+    return 2;
+  }
+  else if (var1 == '+') {
+    return 2;
+  }
+  else if (var1 == '/') {
+    return 3;
+  }
+  else if (var1 == '*') {
+    return 3;
+  }
+  else if (var1 == ' ') {
+    return 4;
+  } 
+  else {
+    return -2;
   }
 }
 
-int calculator(char myoperator, int a, int b) {
-  switch (myoperator) { 
-    case '+': return (b + a);
-    case '-': return (b - a);
-    case '*': return (b * a); 
-    case '/':
-    if (a != 0) {
-      return b / a;
-    }
-    default: return 0;
+int calculator(char c, int a, int b) {
+  if (c == '+') {
+    return (b + a);
+  }
+  else if (c == '-') {
+    return (b - a);
+  }
+  else if (c == '*') {
+    return (b * a);
+  }
+  else if ((c == '/') && (a != 0)) {
+    return (b / a);
+  }
+  else {
+    return 0;
   }
 }
 
 std::string infx2pstfx(std::string inf) {
-  std::string var1;
-  TStack <char, 100> SMT;
+  std::string peremen;
+  TStack <char, 100> ZZ;
   int j = 0;
   for (int j = 0; j < inf.size(); j++) {
     if (pr(inf[j]) == -2) {
-      var1.push_back(inf[j]);
-      var1.push_back(' ');
-    } else {
+      peremen.push_back(inf[j]);
+      peremen.push_back(' ');
+  }
+    else {
       if (pr(inf[j]) == 0) {
-        SMT.push(inf[j]);
-      } else if (SMT.isEmpty()) {
-        SMT.push(inf[j]);
-      } else if ((pr(inf[j]) > pr(SMT.get()))) {
-        SMT.push(inf[j]);
-      } else if (pr(inf[j]) == 1) {
-        while (pr(SMT.get()) != 0) {
-          var1.push_back(SMT.get());
-          var1.push_back(' ');
-          SMT.pop();
+        ZZ.push(inf[j]);
+      } 
+      else if (ZZ.isEmpty()) {
+        ZZ.push(inf[j]);
+      }
+      else if ((pr(inf[j]) > pr(ZZ.get()))) {
+        ZZ.push(inf[j]);
+      } 
+      else if (pr(inf[j]) == 1) {
+        while (pr(ZZ.get()) != 0) {
+          peremen.push_back(ZZ.get());
+          peremen.push_back(' ');
+          ZZ.pop();
         }
-        SMT.pop();
-      } else {
-        while (!SMT.isEmpty() && pr(inf[j]) <= pr(SMT.get())) {
-          var1.push_back(SMT.get());
-          var1.push_back(' ');
-          SMT.pop();
+        ZZ.pop();
+      }
+      else {
+        while (!ZZ.isEmpty() && pr(inf[j]) <= pr(ZZ.get())) {
+          peremen.push_back(ZZ.get());
+          peremen.push_back(' ');
+          ZZ.pop();
         }
-        SMT.push(inf[j]);
+        ZZ.push(inf[j]);
       }
     }
   }
-  while (!SMT.isEmpty()) {
-    var1.push_back(SMT.get());
-    var1.push_back(' ');
-    SMT.pop();
+  while (!ZZ.isEmpty()) {
+    peremen.push_back(ZZ.get());
+    peremen.push_back(' ');
+    ZZ.pop();
   }
   int i = 0;
-  for (int i = 0; i < var1.size(); i++) {
-    if (var1[var1.size() - 1] == ' ')
-      var1.erase(var1.size() - 1);
+  for (int i = 0; i < peremen.size(); i++) {
+    if (peremen[peremen.size() - 1] == ' ')
+    peremen.erase(peremen.size() - 1);
   }
-  return var1;
+  return peremen;
 }
 
 int eval(std::string pref) {
-  int resultat = 0;
-  TStack <int, 100> SMT1;
+  int result = 0;
+  TStack <int, 100> XX;
   int k = 0;
   for (int k = 0; k < pref.size(); k++) {
     if (pr(pref[k]) == -2) {
-      SMT1.push(pref[k] - '0');
-    } else if (pr(pref[k]) < 4) {
-      int x1 = SMT1.get();
-      SMT1.pop();
-      int x2 = SMT1.get();
-      SMT1.pop();
-      SMT1.push(calculator(pref[k], x1, x2));
+      XX.push(pref[k] - '0');
+    }
+    else if (pr(pref[k]) < 4) {
+      int y = XX.get();
+      XX.pop();
+      int x = XX.get();
+      XX.pop();
+      XX.push(calculator(pref[k], y, x));
     }
   }
-  resultat = SMT1.get();
-  return resultat;
+  result = XX.get();
+  return result;
 }
