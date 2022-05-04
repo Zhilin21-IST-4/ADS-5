@@ -7,7 +7,7 @@ int calculator(char myoperator, int var1, int var2) {
   switch (myoperator) { 
     case '+': return (var1 + var2);
     case '-': return (var2 - var1);
-    case '*': return (var1 * var2);
+    case '*': return (var1 * var2); 
     case '/':
     if (var1 != 0) {
       return var2 / var1;
