@@ -27,7 +27,7 @@ int pr(char var1) {
   } 
   else {
     return -2;
-  }
+  } 
 }
 
 int calculator(char c, int a, int b) {
