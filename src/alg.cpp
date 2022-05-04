@@ -3,21 +3,8 @@
 #include <map>
 #include "tstack.h"
 
-int calculator(char myoperator, int var1, int var2) {
-  switch (myoperator) { 
-    case '+': return (var1 + var2);
-    case '-': return (var2 - var1);
-    case '*': return (var1 * var2); 
-    case '/':
-    if (var1 != 0) {
-      return var2 / var1;
-    }
-    default: return 0;
-  }
-}
-
-int priority(char myoperator) {
-  switch (myoperator) {
+int pr(char myoperator1) {
+  switch (myoperator1) {
     case '(': return 0;
     case ')': return 1;
     case '+': return 2;
@@ -29,71 +16,79 @@ int priority(char myoperator) {
   }
 }
 
+int calculator(char myoperator, int a, int b) {
+  switch (myoperator) { 
+    case '+': return (b + a);
+    case '-': return (b - a);
+    case '*': return (b * a); 
+    case '/':
+    if (a != 0) {
+      return b / a;
+    }
+    default: return 0;
+  }
+}
+
 std::string infx2pstfx(std::string inf) {
-  std::string result;
-  char space = ' ';
-  TStack <char, 100> stack;
-  for (int i = 0; i < inf.size(); i++) {
-    if (priority(inf[i]) == 4) {
-      result.push_back(inf[i]);
-      result.push_back(space);
-    } 
-    else {
-      if (priority(inf[i]) == 0) {
-        stack.push(inf[i]);
-      }
-      else if (stack.isEmpty()) {
-        stack.push(inf[i]);
-      }
-      else if ((priority(inf[i]) > priority(stack.get()))) {
-        stack.push(inf[i]);
-      }
-      else if (priority(inf[i]) == 1) {
-        while (priority(stack.get()) != 0) {
-          result.push_back(stack.get());
-          result.push_back(space);
-          stack.pop();
+  std::string var1;
+  TStack <char, 100> SMT;
+  int j = 0;
+  for (int j = 0; j < inf.size(); j++) {
+    if (pr(inf[j]) == -2) {
+      var1.push_back(inf[j]);
+      var1.push_back(' ');
+    } else {
+      if (pr(inf[j]) == 0) {
+        SMT.push(inf[j]);
+      } else if (SMT.isEmpty()) {
+        SMT.push(inf[j]);
+      } else if ((pr(inf[j]) > pr(SMT.get()))) {
+        SMT.push(inf[j]);
+      } else if (pr(inf[j]) == 1) {
+        while (pr(SMT.get()) != 0) {
+          var1.push_back(SMT.get());
+          var1.push_back(' ');
+          SMT.pop();
         }
-        stack.pop();
-      }
-      else {
-        while (!stack.isEmpty() && (priority(inf[i]) <= priority(stack.get()))) {
-          result.push_back(stack.get());
-          result.push_back(space);
-          stack.pop();
+        SMT.pop();
+      } else {
+        while (!SMT.isEmpty() && pr(inf[j]) <= pr(SMT.get())) {
+          var1.push_back(SMT.get());
+          var1.push_back(' ');
+          SMT.pop();
         }
-        stack.push(inf[i]);
+        SMT.push(inf[j]);
       }
     }
   }
-  while (!stack.isEmpty()) {
-    result.push_back(stack.get());
-    result.push_back(space);
-    stack.pop;
+  while (!SMT.isEmpty()) {
+    var1.push_back(SMT.get());
+    var1.push_back(' ');
+    SMT.pop();
   }
-  for (int j = 0; j < result.size(); j++) {
-    if (result[result.size() - 1] == ' ') {
-      result.erase(result.size() - 1);
-    }
+  int i = 0;
+  for (int i = 0; i < var1.size(); i++) {
+    if (var1[var1.size() - 1] == ' ')
+      var1.erase(var1.size() - 1);
   }
-  return result;
+  return var1;
 }
 
 int eval(std::string pref) {
-  TStack <int, 100> stack1;
-  int result = 0;
-  for (int i = 0; i < pref.size(); i++) {
-    if (priority(pref[i]) == 4) {
-      stack1.push(pref[i] - '0');
-    }
-    else if (priority(pref[i]) < 4) {
-      int var3 = stack1.get();
-      stack1.pop();
-      int var4 = stack1.get();
-      stack1.pop();
-      stack1.push(calculator(pref[i], var3, var4));
+  int resultat = 0;
+  TStack <int, 100> SMT1;
+  int k = 0;
+  for (int k = 0; k < pref.size(); k++) {
+    if (pr(pref[k]) == -2) {
+      SMT1.push(pref[k] - '0');
+    } else if (pr(pref[k]) < 4) {
+      int x1 = SMT1.get();
+      SMT1.pop();
+      int x2 = SMT1.get();
+      SMT1.pop();
+      SMT1.push(calculator(pref[k], x1, x2));
     }
   }
-  result = stack1.get();
-  return result;
+  resultat = SMT1.get();
+  return resultat;
 }
