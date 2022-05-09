@@ -1,119 +1,102 @@
 // Copyright 2021 NNTU-CS
 #include <string>
 #include <map>
+#include <iostream>
 #include "tstack.h"
 
-int pr(char var1) {
-  if (var1 == '(') {
-    return 0;
-  }
-  else if (var1 == ')') {
-    return 1;
-  } 
-  else if (var1 == '-') {
-    return 2;
-  }
-  else if (var1 == '+') {
-    return 2;
-  }
-  else if (var1 == '/') {
-    return 3;
-  }
-  else if (var1 == '*') {
-    return 3;
-  }
-  else if (var1 == ' ') {
-    return 4;
-  } 
-  else {
-    return -2;
-  } 
-}
 
-int calculator(char c, int a, int b) {
-  if (c == '+') {
-    return (b + a);
-  }
-  else if (c == '-') {
-    return (b - a);
-  }
-  else if (c == '*') {
-    return (b * a);
-  }
-  else if ((c == '/') && (a != 0)) {
-    return (b / a);
-  }
-  else {
-    return 0;
-  }
+int operat(char pr) {
+    switch (pr) {
+    case '(':
+      return 0;
+    case ')':
+      return 1;
+    case '+':
+      return 2;
+    case '-':
+      return 2;
+    case '*':
+      return 3;
+    case '/':
+      return 3;
+    default:
+        return -1;
+    }
 }
-
+int calcul(char k, int x, int y) {
+    switch (k) {
+    case '+':
+        return x + y;
+            break;
+    case '-':
+        return x - y;
+            break;
+    case '*':
+        return x * y;
+            break;
+    case '/':
+        return x / y;
+            break;
+    default:
+        return 0;
+    }
+}
 std::string infx2pstfx(std::string inf) {
-  std::string peremen;
-  TStack <char, 100> ZZ;
-  int j = 0;
-  for (int j = 0; j < inf.size(); j++) {
-    if (pr(inf[j]) == -2) {
-      peremen.push_back(inf[j]);
-      peremen.push_back(' ');
-  }
-    else {
-      if (pr(inf[j]) == 0) {
-        ZZ.push(inf[j]);
-      } 
-      else if (ZZ.isEmpty()) {
-        ZZ.push(inf[j]);
+  TStack <char, 100> st1;
+  std::string st;
+  for (size_t i = 0; i < inf.size(); i++) {
+    if ((operat(inf[i]) == -1) && (operat(inf[i]) != 1)) {
+      if (!st.empty() && operat(inf[i - 1]) != -1) {
+        st.push_back(' ');
       }
-      else if ((pr(inf[j]) > pr(ZZ.get()))) {
-        ZZ.push(inf[j]);
-      } 
-      else if (pr(inf[j]) == 1) {
-        while (pr(ZZ.get()) != 0) {
-          peremen.push_back(ZZ.get());
-          peremen.push_back(' ');
-          ZZ.pop();
+      st.push_back(inf[i]);
+    } else if ((operat(inf[i]) > operat(st1.get()))
+               || (st1.isEmpty()) || (operat(inf[i]) == 0)) {
+      st1.push(inf[i]);
+    } else {
+      if (operat(inf[i]) == 1) {
+        while (operat(st1.get()) != 0) {
+          st.push_back(' ');
+          st.push_back(st1.get());
+          st1.pop();
         }
-        ZZ.pop();
-      }
-      else {
-        while (!ZZ.isEmpty() && pr(inf[j]) <= pr(ZZ.get())) {
-          peremen.push_back(ZZ.get());
-          peremen.push_back(' ');
-          ZZ.pop();
+        st1.pop();
+      } else {
+        while (operat(st1.get()) >= operat(inf[i])) {
+          st.push_back(' ');
+          st.push_back(st1.get());
+          st1.pop();
         }
-        ZZ.push(inf[j]);
+        st1.push(inf[i]);
       }
     }
   }
-  while (!ZZ.isEmpty()) {
-    peremen.push_back(ZZ.get());
-    peremen.push_back(' ');
-    ZZ.pop();
+  while (!st1.isEmpty()) {
+    st.push_back(' ');
+    if (operat(st1.get()) != 0) {
+      st.push_back(st1.get());
+    }
+    st1.pop();
   }
-  int i = 0;
-  for (int i = 0; i < peremen.size(); i++) {
-    if (peremen[peremen.size() - 1] == ' ')
-    peremen.erase(peremen.size() - 1);
-  }
-  return peremen;
+  return st;
 }
 
-int eval(std::string pref) {
-  int result = 0;
-  TStack <int, 100> XX;
-  int k = 0;
-  for (int k = 0; k < pref.size(); k++) {
-    if (pr(pref[k]) == -2) {
-      XX.push(pref[k] - '0');
+int eval(std::string postov) {
+    TStack<int, 100> st2;
+    int z = 0;
+    int x = 0;
+    int y = 0;
+for (int i = 0; i < postov.length(); i++) {
+        if ((operat(postov[i]) == -1) && postov[i] != ' ') {
+            st2.push(postov[i] - '0');
+        } else if (operat(postov[i]) > 1) {
+            y = st2.get();
+            st2.pop();
+            x = st2.get();
+            st2.pop();
+            st2.push(calcul(postov[i], x, y));
+        }
     }
-    else if (pr(pref[k]) < 4) {
-      int y = XX.get();
-      XX.pop();
-      int x = XX.get();
-      XX.pop();
-      XX.push(calculator(pref[k], y, x));
-    }
-  }
-  result = XX.get();
-  return result;
+    z = st2.get();
+  return z;
 }
